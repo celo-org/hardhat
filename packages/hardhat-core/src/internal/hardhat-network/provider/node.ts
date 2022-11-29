@@ -108,6 +108,7 @@ import {
   shouldShowTransactionTypeForHardfork,
 } from "./output";
 import { ReturnData } from "./return-data";
+import { celoRegistryProxy } from "./predeployed-contracts";
 import { FakeSenderAccessListEIP2930Transaction } from "./transactions/FakeSenderAccessListEIP2930Transaction";
 import { FakeSenderEIP1559Transaction } from "./transactions/FakeSenderEIP1559Transaction";
 import { FakeSenderTransaction } from "./transactions/FakeSenderTransaction";
@@ -118,6 +119,7 @@ import { getCurrentTimestamp } from "./utils/getCurrentTimestamp";
 import { makeCommon } from "./utils/makeCommon";
 import { makeForkClient } from "./utils/makeForkClient";
 import { makeStateTrie } from "./utils/makeStateTrie";
+import { makeAccount } from "./utils/makeAccount";
 import { putGenesisBlock } from "./utils/putGenesisBlock";
 import { txMapToArray } from "./utils/txMapToArray";
 import { RandomBufferGenerator } from "./utils/random";
@@ -221,6 +223,20 @@ export class HardhatNode extends EventEmitter {
         trie: stateTrie,
       });
 
+      // <CELO> Pre-deploy registry contract at static address
+      const registryProxyOwner = makeAccount(genesisAccounts[0]);
+      const registryProxy = celoRegistryProxy(registryProxyOwner.address);
+      await stateManager.putContractCode(
+        registryProxy.address,
+        registryProxy.code
+      );
+      await stateManager.putContractStorage(
+        registryProxy.address,
+        registryProxy.storageKey,
+        registryProxy.storageValue
+      );
+      // </CELO>
+
       const hardhatBlockchain = new HardhatBlockchain(common);
 
       const genesisBlockBaseFeePerGas = hardforkGte(
@@ -250,7 +266,7 @@ export class HardhatNode extends EventEmitter {
       blockchain = hardhatBlockchain;
     }
 
-    const txPool = new TxPool(stateManager, BigInt(blockGasLimit), common);
+    const txPool = new TxPool(stateManager, BigInt(blockGasLimit??0), common);
 
     const eei = new EEI(stateManager, common, blockchain);
     const evm = await EVM.create({
