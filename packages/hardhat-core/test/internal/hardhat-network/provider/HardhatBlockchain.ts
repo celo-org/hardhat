@@ -1,10 +1,10 @@
-import { Block } from "@nomicfoundation/ethereumjs-block";
-import { Common } from "@nomicfoundation/ethereumjs-common";
+import { Block } from "@ethereumjs/block";
+import { Common } from "@ethereumjs/common";
 import {
   BufferLike,
   bufferToBigInt,
   zeros,
-} from "@nomicfoundation/ethereumjs-util";
+} from "@ethereumjs/util";
 import { assert } from "chai";
 
 import { randomHashBuffer } from "../../../../src/internal/hardhat-network/provider/utils/random";

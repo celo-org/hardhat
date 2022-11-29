@@ -1,13 +1,13 @@
-import { Block, BlockHeader } from "@nomicfoundation/ethereumjs-block";
+import { Block, BlockHeader } from "@ethereumjs/block";
 import {
   BlockchainInterface,
   CasperConsensus,
   CliqueConsensus,
   Consensus,
   EthashConsensus,
-} from "@nomicfoundation/ethereumjs-blockchain";
-import { Common, ConsensusAlgorithm } from "@nomicfoundation/ethereumjs-common";
-import { TypedTransaction } from "@nomicfoundation/ethereumjs-tx";
+} from "@ethereumjs/blockchain";
+import { Common, ConsensusAlgorithm } from "@ethereumjs/common";
+import { TypedTransaction } from "@ethereumjs/tx";
 
 import { assertHardhatInvariant } from "../../core/errors";
 import * as BigIntUtils from "../../util/bigint";

@@ -1,4 +1,4 @@
-import { zeroAddress } from "@nomicfoundation/ethereumjs-util";
+import { zeroAddress } from "@ethereumjs/util";
 import { assert } from "chai";
 import sinon, { SinonSpy } from "sinon";
 import { Client } from "undici";
@@ -6,7 +6,7 @@ import {
   AccessListEIP2930Transaction,
   FeeMarketEIP1559Transaction,
   Transaction,
-} from "@nomicfoundation/ethereumjs-tx";
+} from "@ethereumjs/tx";
 
 import {
   numberToRpcQuantity,

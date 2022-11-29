@@ -1,11 +1,11 @@
-import { Block, HeaderData } from "@nomicfoundation/ethereumjs-block";
-import { Common } from "@nomicfoundation/ethereumjs-common";
+import { Block, HeaderData } from "@ethereumjs/block";
+import { Common } from "@ethereumjs/common";
 import {
   AccessListEIP2930Transaction,
   FeeMarketEIP1559Transaction,
   Transaction,
   TypedTransaction,
-} from "@nomicfoundation/ethereumjs-tx";
+} from "@ethereumjs/tx";
 import {
   Address,
   ECDSASignature,
@@ -16,20 +16,20 @@ import {
   privateToAddress,
   setLengthLeft,
   toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
+} from "@ethereumjs/util";
 import {
   Bloom,
   EEI,
   RunBlockResult,
   RunTxResult,
   VM,
-} from "@nomicfoundation/ethereumjs-vm";
-import { EVM, EVMResult } from "@nomicfoundation/ethereumjs-evm";
-import { ERROR } from "@nomicfoundation/ethereumjs-evm/dist/exceptions";
+} from "@ethereumjs/vm";
+import { EVM, EVMResult } from "@ethereumjs/evm";
+import { ERROR } from "@ethereumjs/evm/dist/exceptions";
 import {
   DefaultStateManager,
   StateManager,
-} from "@nomicfoundation/ethereumjs-statemanager";
+} from "@ethereumjs/statemanager";
 import { SignTypedDataVersion, signTypedData } from "@metamask/eth-sig-util";
 import chalk from "chalk";
 import debug from "debug";

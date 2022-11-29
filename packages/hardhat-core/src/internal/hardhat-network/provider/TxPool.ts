@@ -1,14 +1,14 @@
-import { Common } from "@nomicfoundation/ethereumjs-common";
+import { Common } from "@ethereumjs/common";
 import {
   TransactionFactory,
   TypedTransaction,
-} from "@nomicfoundation/ethereumjs-tx";
-import { StateManager } from "@nomicfoundation/ethereumjs-statemanager";
+} from "@ethereumjs/tx";
+import { StateManager } from "@ethereumjs/statemanager";
 import {
   Address,
   bufferToHex,
   toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
+} from "@ethereumjs/util";
 import { List as ImmutableList, Record as ImmutableRecord } from "immutable";
 
 import { InvalidInputError } from "../../core/providers/errors";

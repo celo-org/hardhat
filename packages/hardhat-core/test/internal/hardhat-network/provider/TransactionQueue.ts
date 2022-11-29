@@ -1,17 +1,17 @@
-import { TxData } from "@nomicfoundation/ethereumjs-tx";
+import { TxData } from "@ethereumjs/tx";
 import {
   AddressLike,
   arrToBufArr,
   bufferToBigInt,
   bufferToHex,
-} from "@nomicfoundation/ethereumjs-util";
+} from "@ethereumjs/util";
 import { assert } from "chai";
 import { randomBytes } from "crypto";
 
 import {
   AccessListEIP2930TxData,
   FeeMarketEIP1559TxData,
-} from "@nomicfoundation/ethereumjs-tx/dist/types";
+} from "@ethereumjs/tx/dist/types";
 import { OrderedTransaction } from "../../../../src/internal/hardhat-network/provider/PoolState";
 import { TransactionQueue } from "../../../../src/internal/hardhat-network/provider/TransactionQueue";
 import { createTestOrderedTransaction } from "../helpers/blockchain";
