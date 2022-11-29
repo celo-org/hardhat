@@ -24,7 +24,7 @@ describe("Web3 module", function () {
           const res = await this.provider.send("web3_clientVersion");
           assert.match(
             res,
-            /^HardhatNetwork\/.*\/@nomicfoundation\/ethereumjs-vm/
+            /^HardhatNetwork\/.*\/@celo\/ethereumjs-vm/
           );
         });
       });
