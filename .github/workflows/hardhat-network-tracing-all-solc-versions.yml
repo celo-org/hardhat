@@ -1,4 +1,4 @@
-name: Hardhat Network Tracing Capabilities, scheduled runs for all solc verisons
+name: Hardhat Network Tracing Capabilities, scheduled runs for all solc versions
 
 on:
   schedule:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [14, 16, 18]
+        node: [14, 16, 18.15]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

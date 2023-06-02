@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { NativeCompiler } from "../../../../src/internal/solidity/compiler";
+
+import {
+  Compiler as SolcJsCompiler,
+  NativeCompiler,
+} from "../../../../src/internal/solidity/compiler";
 import {
   Compiler,
   CompilerDownloader,
@@ -9,11 +13,7 @@ import { getCompilersDir } from "../../../../src/internal/util/global-dir";
 
 import { CompilerInput, CompilerOutput } from "../../../../src/types";
 
-export interface CompilerOptions {
-  solidityVersion: string;
-  compilerPath: string;
-  runs?: number;
-}
+import { SolidityCompiler } from "./compilers-list";
 
 interface SolcSourceFileToContents {
   [filename: string]: { content: string };
@@ -30,41 +30,67 @@ function getSolcSourceFileMapping(sources: string[]): SolcSourceFileToContents {
 
 function getSolcInput(
   sources: SolcSourceFileToContents,
-  compilerOptions: CompilerOptions
+  compilerOptions: SolidityCompiler
 ): CompilerInput {
+  const isViaIR = compilerOptions.optimizer?.viaIR ?? false;
+
+  const optimizerDetails = isViaIR
+    ? {
+        yulDetails: {
+          optimizerSteps: "u",
+        },
+      }
+    : undefined;
+
+  const optimizer =
+    compilerOptions.optimizer === undefined
+      ? {
+          enabled: false,
+        }
+      : {
+          enabled: true,
+          runs: compilerOptions.optimizer.runs,
+          details: optimizerDetails,
+        };
+
+  const settings: CompilerInput["settings"] = {
+    optimizer,
+    outputSelection: {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+        ],
+        "": ["id", "ast"],
+      },
+    },
+  };
+
+  // old compilers might throw if we use the `viaIR` setting because they don't
+  // recognize the option, so we only set it when it's true
+  if (isViaIR) {
+    settings.viaIR = true;
+  }
+
   return {
     language: "Solidity",
     sources,
-    settings: {
-      optimizer: {
-        enabled: compilerOptions.runs !== undefined,
-        runs: compilerOptions.runs ?? 200,
-      },
-      outputSelection: {
-        "*": {
-          "*": [
-            "abi",
-            "evm.bytecode",
-            "evm.deployedBytecode",
-            "evm.methodIdentifiers",
-          ],
-          "": ["id", "ast"],
-        },
-      },
-    },
+    settings,
   };
 }
 
 function getSolcInputForFiles(
   sources: string[],
-  compilerOptions: CompilerOptions
+  compilerOptions: SolidityCompiler
 ): CompilerInput {
   return getSolcInput(getSolcSourceFileMapping(sources), compilerOptions);
 }
 
 function getSolcInputForLiteral(
   source: string,
-  compilerOptions: CompilerOptions,
+  compilerOptions: SolidityCompiler,
   filename: string = "literal.sol"
 ): CompilerInput {
   return getSolcInput({ [filename]: { content: source } }, compilerOptions);
@@ -76,14 +102,16 @@ async function compile(
   input: CompilerInput,
   compiler: Compiler
 ): Promise<[CompilerInput, CompilerOutput]> {
+  let runnableCompiler: any;
   if (compiler.isSolcJs) {
-    throw new Error("These tests expect to be able to run native solc");
+    runnableCompiler = new SolcJsCompiler(compiler.compilerPath);
+  } else {
+    runnableCompiler = new NativeCompiler(compiler.compilerPath);
   }
-  const nativeCompiler = new NativeCompiler(compiler.compilerPath);
 
-  const output = await nativeCompiler.compile(input);
+  const output = await runnableCompiler.compile(input);
 
-  if (output.errors) {
+  if (output.errors !== undefined) {
     for (const error of output.errors) {
       if (error.severity === "error") {
         throw new Error(`Failed to compile: ${error.message}`);
@@ -96,18 +124,29 @@ async function compile(
 
 export async function compileFiles(
   sources: string[],
-  compilerOptions: CompilerOptions
+  compilerOptions: SolidityCompiler
 ): Promise<[CompilerInput, CompilerOutput]> {
-  const compiler = await getCompilerForVersion(compilerOptions.solidityVersion);
+  let compiler: Compiler;
+  // special case for running tests with custom solc
+  if (path.isAbsolute(compilerOptions.compilerPath)) {
+    compiler = {
+      compilerPath: compilerOptions.compilerPath,
+      isSolcJs: process.env.HARDHAT_TESTS_SOLC_NATIVE !== "true",
+      version: compilerOptions.solidityVersion,
+      longVersion: compilerOptions.solidityVersion,
+    };
+  } else {
+    compiler = await getCompilerForVersion(compilerOptions.solidityVersion);
+  }
+
   return compile(getSolcInputForFiles(sources, compilerOptions), compiler);
 }
 
 export async function compileLiteral(
   source: string,
-  compilerOptions: CompilerOptions = {
+  compilerOptions: SolidityCompiler = {
     solidityVersion: "0.8.0",
     compilerPath: "soljson-v0.8.0+commit.c7dfd78e.js",
-    runs: 1,
   },
   filename: string = "literal.sol"
 ): Promise<[CompilerInput, CompilerOutput]> {
@@ -150,6 +189,7 @@ export async function downloadCompiler(solidityVersion: string) {
   );
 
   if (!isCompilerDownloaded) {
+    console.log("Downloading solc", solidityVersion);
     await downloader.downloadCompiler(solidityVersion);
   }
 }

@@ -48,6 +48,14 @@ await expect(token.transfer(address, 0)).to.be.revertedWith(
 );
 ```
 
+You can also use regular expressions:
+
+```ts
+await expect(token.transfer(address, 0)).to.be.revertedWith(
+  /AccessControl: account .* is missing role .*/
+);
+```
+
 ### `.revertedWithCustomError`
 
 Assert that a transaction reverted with a specific [custom error](https://docs.soliditylang.org/en/v0.8.14/contracts.html#errors-and-the-revert-statement):
@@ -215,7 +223,7 @@ await expect(factory.create(9999))
   .withArgs(anyValue, 9999);
 ```
 
-Predicates are just function that return true if the value is correct, and return false if it isn't, so you can create your own predicates:
+Predicates are just functions that return true if the value is correct, and return false if it isn't, so you can create your own predicates:
 
 ```ts
 function isEven(x: BigNumber): boolean {

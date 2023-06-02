@@ -102,7 +102,7 @@ describe("Block's baseFeePerGas", function () {
               useProvider();
 
               it("Should use the same base fee as the one remote networks's forked block", async function () {
-                if (ALCHEMY_URL === undefined || ALCHEMY_URL === "") {
+                if (ALCHEMY_URL === undefined) {
                   this.skip();
                   return;
                 }
@@ -122,12 +122,17 @@ describe("Block's baseFeePerGas", function () {
                 );
               });
 
-              for (const hardfork of ["london", "arrowGlacier"]) {
+              for (const hardfork of ["london", "arrowGlacier", "shanghai"]) {
                 it(`should compute the next base fee correctly when ${hardfork} is activated`, async function () {
                   const latestBlockRpc = await this.provider.send(
                     "eth_getBlockByNumber",
                     ["latest", false]
                   );
+
+                  if (hardfork !== "shanghai") {
+                    delete latestBlockRpc.withdrawals;
+                    delete latestBlockRpc.withdrawalsRoot;
+                  }
 
                   const latestBlockData = rpcToBlockData({
                     ...latestBlockRpc,

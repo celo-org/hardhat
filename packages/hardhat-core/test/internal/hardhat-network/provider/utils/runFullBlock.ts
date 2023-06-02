@@ -1,4 +1,5 @@
-import { Block } from "@ethereumjs/block";
+import { Block } from "@nomicfoundation/ethereumjs-block";
+import { Common } from "@nomicfoundation/ethereumjs-common";
 import {
   AfterBlockEvent,
   RunBlockOpts,
@@ -21,7 +22,7 @@ export async function runFullBlock(
   url: string,
   blockToRun: bigint,
   chainId: number,
-  hardfork: string
+  remoteCommon: Common
 ) {
   const forkConfig = {
     jsonRpcUrl: url,
@@ -32,13 +33,18 @@ export async function runFullBlock(
 
   const rpcBlock = await forkClient.getBlockByNumber(blockToRun, true);
 
+  const hardfork = remoteCommon.getHardforkByBlockNumber(
+    blockToRun,
+    undefined,
+    rpcBlock?.timestamp
+  );
+
   if (rpcBlock === null) {
     assert.fail();
   }
 
   const forkedNodeConfig: ForkedNodeConfig = {
     automine: true,
-    networkName: "mainnet",
     chainId,
     networkId: 1,
     hardfork,
@@ -50,6 +56,7 @@ export async function runFullBlock(
     mempoolOrder: "priority",
     coinbase: "0x0000000000000000000000000000000000000000",
     chains: defaultHardhatNetworkParams.chains,
+    allowBlocksWithSameTimestamp: false,
   };
 
   const [common, forkedNode] = await HardhatNode.create(forkedNodeConfig);

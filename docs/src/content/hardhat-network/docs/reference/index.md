@@ -7,9 +7,12 @@
 - petersburg
 - istanbul
 - muirGlacier
+- berlin
 - london
 - arrowGlacier
+- grayGlacier
 - merge
+- shanghai
 
 ## Config
 
@@ -62,7 +65,7 @@ The block gas limit to use in Hardhat Network's blockchain. Default value: `30_0
 
 #### `hardfork`
 
-This setting changes how Hardhat Network works, to mimic Ethereum's mainnet at a given hardfork. It must be one of `"byzantium"`, `"constantinople"`, `"petersburg"`, `"istanbul"`, `"muirGlacier"`, `"berlin"`, `"london"`, `"arrowGlacier"`, `"grayGlacier"` and `"merge"`. Default value: `"merge"`
+This setting changes how Hardhat Network works, to mimic Ethereum's mainnet at a given hardfork. It must be one of `"byzantium"`, `"constantinople"`, `"petersburg"`, `"istanbul"`, `"muirGlacier"`, `"berlin"`, `"london"`, `"arrowGlacier"`, `"grayGlacier"`, `"merge"` and `"shanghai"`. Default value: `"shanghai"`
 
 #### `throwOnTransactionFailures`
 
@@ -83,6 +86,10 @@ An optional string setting the date of the blockchain. Valid values are [Javascr
 #### `allowUnlimitedContractSize`
 
 An optional boolean that disables the contract size limit imposed by the [EIP 170](https://eips.ethereum.org/EIPS/eip-170). Default value: `false`
+
+#### `allowBlocksWithSameTimestamp`
+
+A boolean to allow mining blocks that have the same timestamp. This is not allowed by default because Ethereum's consensus rules specify that each block should have a different timestamp. Default value: `false`
 
 #### `forking`
 
@@ -207,7 +214,7 @@ networks: {
 - `console.log` implements the same formatting options that can be found in Node.js' [`console.log`](https://nodejs.org/dist/latest-v12.x/docs/api/console.html#console_console_log_data_args), which in turn uses [`util.format`](https://nodejs.org/dist/latest-v12.x/docs/api/util.html#util_util_format_format_args).
   - Example: `console.log("Changing owner from %s to %s", currentOwner, newOwner)`
 - `console.log` is implemented in standard Solidity and then detected in Hardhat Network. This makes its compilation work with any other tools (like Remix, Waffle or Truffle).
-- `console.log` calls can run in other networks, like mainnet, goerli, sepolia, etc. They do nothing in those networks, but do spend a minimal amount of gas.
+- `console.log` calls can run in other networks, like mainnet, sepolia, goerli, etc. They do nothing in those networks, but do spend a minimal amount of gas.
 - `console.log` output can also be viewed for testnets and mainnet via [Tenderly](https://tenderly.co/).
 - `console.log` works by sending static calls to a well-known contract address. At runtime, Hardhat Network detects calls to that address, decodes the input data to the calls, and writes it to the console.
 
@@ -378,7 +385,7 @@ Remove a transaction from the mempool
 
 Hardhat Network allows you to send transactions impersonating specific account and contract addresses.
 
-To impersonate an account use the this method, passing the address to impersonate as its parameter:
+To impersonate an account use this method, passing the address to impersonate as its parameter:
 
 ```tsx
 await hre.network.provider.request({
@@ -404,6 +411,20 @@ Call [`hardhat_stopImpersonatingAccount`](#hardhat-stopimpersonatingaccount) to 
 
 Returns `true` if automatic mining is enabled, and `false` otherwise. See [Mining Modes](../explanation/mining-modes.md) to learn more.
 
+#### `hardhat_metadata`
+
+Returns an object with metadata about the instance of the Hardhat Network. This object contains:
+
+- `clientVersion`: A string identifying the version of Hardhat, for debugging purposes, not meant to be displayed to users.
+- `chainId`: The chain's id. Used to sign transactions.
+- `instanceId`: A 0x-prefixed hex-encoded 32 bytes id which uniquely identifies an instance/run of Hardhat Network. Running Hardhat Network more than once (even with the same version and parameters) will always result in different `instanceId`s. Running `hardhat_reset` will change the `instanceId` of an existing Hardhat Network.
+- `latestBlockNumber`: The latest block's number in Hardhat Network.
+- `latestBlockHash`: The latest block's hash in Hardhat Network.
+- `forkedNetwork`: An object with information about the forked network. This field is only present when Hardhat Network is forking another chain. Its fields are:
+  - `chainId`: The chainId of the network that is being forked
+  - `forkBlockNumber`: The number of the block that the network forked from.
+  - `forkBlockHash`: The hash of the block that the network forked from.
+
 #### `hardhat_mine`
 
 Sometimes you may want to advance the latest block number of the Hardhat Network by a large number of blocks. One way to do this would be to call the `evm_mine` RPC method multiple times, but this is too slow if you want to mine thousands of blocks. The `hardhat_mine` method can mine any number of blocks at once, in constant time. (It exhibits the same performance no matter how many blocks are mined.)
@@ -424,7 +445,58 @@ Also note that blocks created via `hardhat_mine` may not trigger new-block event
 
 #### `hardhat_reset`
 
-See the [Mainnet Forking guide](./guides/forking-other-networks.md#resetting-the-fork)
+You can manipulate forking during runtime to reset back to a fresh forked state, fork from another block number or disable forking by calling `hardhat_reset`:
+
+::::tabsgroup{options=Infura,Alchemy}
+
+:::tab{value=Infura}
+
+```ts
+await network.provider.request({
+  method: "hardhat_reset",
+  params: [
+    {
+      forking: {
+        jsonRpcUrl: "https://mainnet.infura.io/v3/<key>",
+        blockNumber: 14390000,
+      },
+    },
+  ],
+});
+```
+
+:::
+
+:::tab{value=Alchemy}
+
+```ts
+await network.provider.request({
+  method: "hardhat_reset",
+  params: [
+    {
+      forking: {
+        jsonRpcUrl: "https://eth-mainnet.g.alchemy.com/v2/<key>",
+        blockNumber: 14390000,
+      },
+    },
+  ],
+});
+```
+
+:::
+
+::::
+
+You can disable forking by passing empty params:
+
+```ts
+await network.provider.request({
+  method: "hardhat_reset",
+  params: [],
+});
+```
+
+This will reset the Hardhat Network, starting a new instance in the state described [here](#initial-state).
 
 #### `hardhat_setBalance`
 

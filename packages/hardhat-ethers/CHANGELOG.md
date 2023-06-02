@@ -1,5 +1,17 @@
 # @nomiclabs/hardhat-ethers
 
+## 2.2.3
+
+### Patch Changes
+
+- 6dccd2915: Make getContractFactory's params validation more flexible.
+
+## 2.2.2
+
+### Patch Changes
+
+- 7e013fa19: Upgrade undici
+
 ## 2.2.1
 
 ### Patch Changes

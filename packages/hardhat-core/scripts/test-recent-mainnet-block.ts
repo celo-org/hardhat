@@ -7,7 +7,10 @@ async function main() {
   const rpcUrl = process.env.ALCHEMY_URL;
 
   if (rpcUrl === undefined || rpcUrl === "") {
-    throw new Error("Missing ALCHEMY_URL environment variable");
+    console.error(
+      "[test-recent-mainnet-block] Missing ALCHEMY_URL environment variable"
+    );
+    process.exit(1);
   }
 
   const forkConfig = {
@@ -22,9 +25,8 @@ async function main() {
   console.log("Testing block", blockNumber.toString());
 
   const remoteCommon = new Common({ chain: 1 });
-  const hardfork = remoteCommon.getHardforkByBlockNumber(blockNumber);
 
-  await runFullBlock(rpcUrl, blockNumber, 1, hardfork);
+  await runFullBlock(rpcUrl, blockNumber, 1, remoteCommon);
 }
 
 main()

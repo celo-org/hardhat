@@ -12,8 +12,7 @@ import { ALCHEMY_URL, INFURA_URL } from "../../../setup";
 
 import { useProvider, UseProviderOptions } from "./useProvider";
 
-export const DEFAULT_HARDFORK = "london";
-export const DEFAULT_NETWORK_NAME = "TestNet";
+export const DEFAULT_HARDFORK = "shanghai";
 export const DEFAULT_CHAIN_ID = 123;
 export const DEFAULT_NETWORK_ID = 234;
 export const DEFAULT_BLOCK_GAS_LIMIT = 6000000n;
@@ -140,7 +139,7 @@ if (ALCHEMY_URL !== undefined) {
       useProvider({
         useJsonRpc: false,
         loggerEnabled: true,
-        forkConfig: { jsonRpcUrl: url },
+        forkConfig: { jsonRpcUrl: url, blockNumber: options.forkBlockNumber },
         ...options,
       });
     },
@@ -154,7 +153,7 @@ if (ALCHEMY_URL !== undefined) {
       useProvider({
         useJsonRpc: false,
         loggerEnabled: true,
-        forkConfig: { jsonRpcUrl: url },
+        forkConfig: { jsonRpcUrl: url, blockNumber: options.forkBlockNumber },
         mining: {
           auto: false,
           interval: 10000,
@@ -172,7 +171,7 @@ if (ALCHEMY_URL !== undefined) {
       useProvider({
         useJsonRpc: false,
         loggerEnabled: true,
-        forkConfig: { jsonRpcUrl: url },
+        forkConfig: { jsonRpcUrl: url, blockNumber: options.forkBlockNumber },
         ...options,
       });
     },
@@ -189,7 +188,7 @@ if (INFURA_URL !== undefined) {
       useProvider({
         useJsonRpc: false,
         loggerEnabled: true,
-        forkConfig: { jsonRpcUrl: url },
+        forkConfig: { jsonRpcUrl: url, blockNumber: options.forkBlockNumber },
         ...options,
       });
     },

@@ -63,7 +63,7 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox
 :::tab{value="npm 6"}
 
 ```
-npm install --save-dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
+npm install --save-dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers@1 @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers@5 hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
 ```
 
 :::
@@ -71,7 +71,7 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat
 :::tab{value="yarn"}
 
 ```
-yarn add --dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
+yarn add --dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers@1 @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers@5 hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
 ```
 
 :::
@@ -239,7 +239,7 @@ Hardhat tasks can receive named parameters with a value (eg `--parameter-name pa
 Adding an optional parameter to the `hello` task can look like this:
 
 ```js
-task("hello", "Prints a greeting'")
+task("hello", "Prints a greeting")
   .addOptionalParam("greeting", "The greeting to print", "Hello, World!")
   .setAction(async ({ greeting }) => console.log(greeting));
 ```

@@ -1,15 +1,17 @@
-import { Transaction, TxData } from "@ethereumjs/tx";
+import { Common } from "@nomicfoundation/ethereumjs-common";
+import { Transaction, TxData } from "@nomicfoundation/ethereumjs-tx";
 import {
   Account,
   Address,
   privateToAddress,
   bigIntToBuffer,
-} from "@ethereumjs/util";
-import { VM } from "@ethereumjs/vm";
-import abi from "ethereumjs-abi";
+} from "@nomicfoundation/ethereumjs-util";
+import { VM } from "@nomicfoundation/ethereumjs-vm";
 
 import { MessageTrace } from "../../../../src/internal/hardhat-network/stack-traces/message-trace";
 import { VMTracer } from "../../../../src/internal/hardhat-network/stack-traces/vm-tracer";
+
+const abi = require("ethereumjs-abi");
 
 const senderPrivateKey = Buffer.from(
   "e331b6d69882b4cb4ea581d88e0b604039a3de5967688d3dcffdd2270c0fd109",
@@ -20,7 +22,9 @@ const senderAddress = privateToAddress(senderPrivateKey);
 export async function instantiateVm(): Promise<VM> {
   const account = Account.fromAccountData({ balance: 1e15 });
 
-  const vm = await VM.create({ activatePrecompiles: true });
+  const common = new Common({ chain: "mainnet", hardfork: "shanghai" });
+
+  const vm = await VM.create({ activatePrecompiles: true, common });
 
   await vm.stateManager.putAccount(new Address(senderAddress), account);
 

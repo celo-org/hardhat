@@ -2,61 +2,139 @@
 
 You can start an instance of Hardhat Network that forks mainnet. This means that it will simulate having the same state as mainnet, but it will work as a local development network. That way you can interact with deployed protocols and test complex interactions locally.
 
-To use this feature you need to connect to an archive node. We recommend using [Alchemy].
+To use this feature you need to connect to an archive node. We recommend using [Infura] or [Alchemy].
 
 ## Forking from mainnet
 
 The easiest way to try this feature is to start a node from the command line:
 
+::::tabsgroup{options=Infura,Alchemy}
+
+:::tab{value=Infura}
+
 ```
-npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<key>
+npx hardhat node --fork https://mainnet.infura.io/v3/<key>
 ```
 
+:::
+
+:::tab{value=Alchemy}
+
+```
+npx hardhat node --fork https://eth-mainnet.g.alchemy.com/v2/<key>
+
+```
+
+:::
+
+::::
+
 You can also configure Hardhat Network to always do this:
+
+::::tabsgroup{options=Infura,Alchemy}
+
+:::tab{value=Infura}
 
 ```js
 networks: {
   hardhat: {
     forking: {
-      url: "https://eth-mainnet.alchemyapi.io/v2/<key>",
+      url: "https://mainnet.infura.io/v3/<key>",
     }
   }
 }
 ```
 
-(Note that you'll need to replace the `<key>` component of the URL with your personal Alchemy API key.)
+:::
+
+:::tab{value=Alchemy}
+
+```js
+networks: {
+  hardhat: {
+    forking: {
+      url: "https://eth-mainnet.g.alchemy.com/v2/<key>",
+    }
+  }
+}
+```
+
+:::
+
+::::
+
+(Note that you'll need to replace the `<key>` component of the URL with your personal Infura or Alchemy API key.)
 
 By accessing any state that exists on mainnet, Hardhat Network will pull the data and expose it transparently as if it was available locally.
 
 ## Pinning a block
 
-Hardhat Network will by default fork from the latest mainnet block. While this might be practical depending on the context, to set up a test suite that depends on forking we recommend forking from a specific block number.
+Hardhat Network will by default fork from a recent mainnet block. While this might be practical depending on the context, to set up a test suite that depends on forking we recommend forking from a specific block number.
 
 There are two reasons for this:
 
 - The state your tests run against may change between runs. This could cause your tests or scripts to behave differently.
 - Pinning enables caching. Every time data is fetched from mainnet, Hardhat Network caches it on disk to speed up future access. If you don't pin the block, there's going to be new data with each new block and the cache won't be useful. We measured up to 20x speed improvements with block pinning.
 
-**You will need access to a node with archival data for this to work.** This is why we recommend [Alchemy], since their free plans include archival data.
+**You will need access to a node with archival data for this to work.** This is why we recommend [Infura] or [Alchemy], since their free plans include archival data.
 
 To pin the block number:
+
+::::tabsgroup{options=Infura,Alchemy}
+
+:::tab{value=Infura}
 
 ```js
 networks: {
   hardhat: {
     forking: {
-      url: "https://eth-mainnet.alchemyapi.io/v2/<key>",
+      url: "https://mainnet.infura.io/v3/<key>",
       blockNumber: 14390000
     }
   }
 }
 ```
 
+:::
+
+:::tab{value=Alchemy}
+
+```js
+networks: {
+  hardhat: {
+    forking: {
+      url: "https://eth-mainnet.g.alchemy.com/v2/<key>",
+      blockNumber: 14390000
+    }
+  }
+}
+```
+
+:::
+
+::::
+
 If you are using the `node` task, you can also specify a block number with the `--fork-block-number` flag:
 
+::::tabsgroup{options=Infura,Alchemy}
+
+:::tab{value=Infura}
+
 ```
-npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<key> --fork-block-number 14390000
+npx hardhat node --fork https://mainnet.infura.io/v3/<key> --fork-block-number 14390000
 ```
+
+:::
+
+:::tab{value=Alchemy}
+
+```
+npx hardhat node --fork https://eth-mainnet.g.alchemy.com/v2/<key> --fork-block-number 14390000
+```
+
+:::
+
+::::
 
 ## Custom HTTP headers
 
@@ -102,32 +180,21 @@ Once you've got a local instance of the mainnet chain state, setting that state 
 
 ## Resetting the fork
 
-You can manipulate forking during runtime to reset back to a fresh forked state, fork from another block number or disable forking by calling `hardhat_reset`:
+You can reset the network with the [`reset`](</hardhat-network-helpers/docs/reference#reset([url],-[blocknumber])>) network helper:
 
-```ts
-await network.provider.request({
-  method: "hardhat_reset",
-  params: [
-    {
-      forking: {
-        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/<key>",
-        blockNumber: 14390000,
-      },
-    },
-  ],
-});
+```js
+const helpers = require("@nomicfoundation/hardhat-network-helpers");
+
+await helpers.reset(url, blockNumber);
 ```
 
-You can disable forking by passing empty params:
+Both the `url` and the `blockNumber` can be different to the ones that are currently being used by the fork.
+
+To reset the network to a local, non-forked state, call the helper without any arguments:
 
 ```ts
-await network.provider.request({
-  method: "hardhat_reset",
-  params: [],
-});
+await helpers.reset();
 ```
-
-This will reset Hardhat Network, starting a new instance in the state described [here](../reference/#initial-state).
 
 ## Using a custom hardfork history
 
@@ -160,10 +227,11 @@ See also [the `chains` entry in the Hardhat Network configuration reference](../
 
 ### "Project ID does not have access to archive state"
 
-When using Infura without the archival add-on, you will only have access to the state of the blockchain from recent blocks. To avoid this problem, you can use either a local archive node or a service that provides archival data, like [Alchemy].
+When using a node that doesn't have archival data, you will only have access to the state of the blockchain from recent blocks. To avoid this problem, you can use either a local archive node or a service that provides archival data, like [Infura] or [Alchemy].
 
 ## See also
 
 For full details on what's supported, see [the Hardhat Network Config Reference](../reference/#config).
 
-[alchemy]: https://alchemyapi.io/
+[infura]: https://infura.io
+[alchemy]: https://alchemy.com

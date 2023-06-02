@@ -1,5 +1,18 @@
 # @nomiclabs/hardhat-vyper
 
+## 3.0.3
+
+### Patch Changes
+
+- a7e70047e: Keep the parent exception when throwing because the compiler list download failed.
+- 5231d38f4: Use our mirror to download Vyper releases, which should be more stable
+
+## 3.0.2
+
+### Patch Changes
+
+- 7e81377fc: Fix vyper compiler download timeouts
+
 ## 3.0.1
 
 ### Patch Changes

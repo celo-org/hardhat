@@ -1,5 +1,36 @@
 # @nomiclabs/hardhat-etherscan
 
+## 3.1.7
+
+### Patch Changes
+
+- 17de12666: Don't try to verify contracts that have already been verified
+- 6f94b851d: Add support for Gnosis Chain's Chiado testnet
+
+## 3.1.6
+
+### Patch Changes
+
+- 070abb7f5: Added support for the `http_proxy` environment variable. When this variable is set, `hardhat-etherscan` will use the given proxy to send the verification requests.
+
+## 3.1.5
+
+### Patch Changes
+
+- 7e013fa19: Upgrade undici
+
+## 3.1.4
+
+### Patch Changes
+
+- fdeba783f: A warning is now shown when there is an etherscan entry in the networks object.
+
+## 3.1.3
+
+### Patch Changes
+
+- 17b275de3: Add `--no-compile` flag to the `verify` task
+
 ## 3.1.2
 
 ### Patch Changes

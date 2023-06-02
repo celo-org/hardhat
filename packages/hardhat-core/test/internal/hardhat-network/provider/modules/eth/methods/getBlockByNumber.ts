@@ -28,7 +28,7 @@ describe("Eth module", function () {
 
     describe(`${name} provider`, function () {
       setCWD();
-      useProvider();
+      useProvider({ hardfork: "london" });
 
       const getFirstBlock = async () =>
         isFork ? retrieveForkBlockNumber(this.ctx.hardhatNetworkProvider) : 0;
@@ -103,6 +103,7 @@ describe("Eth module", function () {
             ["pending", false]
           );
 
+          assert.isNotEmpty(block.logsBloom);
           assert.equal(block.transactions.length, 1);
           assert.equal(block.parentHash, firstBlock.hash);
           assert.include(block.transactions as string[], txHash);
