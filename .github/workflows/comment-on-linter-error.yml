@@ -1,50 +1,41 @@
-name: Comment on lint failure
+name: Comment on the pull request
 
+# read-write repo token
+# access to secrets
 on:
-  pull_request_target:
+  workflow_run:
+    workflows: ["Check Lint Failure"]
     types:
-      - opened
-    branches:
-      - $default-branch
-
-concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
-  cancel-in-progress: true
+      - completed
 
 jobs:
   comment_on_lint_failure:
-    name: Comment on lint failure
     runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'failure'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
+      - name: 'Download artifact'
+        uses: actions/download-artifact@v4
         with:
-          ref: "refs/pull/${{ github.event.number }}/merge"
-      - uses: actions/setup-node@v2
+          name: pr-number
+          path: pr
+          repository: ${{ github.repository }}
+          run-id: ${{github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Display structure of downloaded files
+        run: ls -R pr
+      - name: Catfile
+        run: cat pr/pr-number
+      - name: 'Comment on PR'
+        uses: actions/github-script@v6
         with:
-          node-version: 14
-          cache: yarn
-      - name: Install
-        run: yarn --frozen-lockfile
-      - name: Build
-        run: yarn build
-      - name: lint
-        run: yarn lint
-      - name: Check dependency versions
-        run: node scripts/check-dependencies.js
-      - name: Install website
-        working-directory: docs/
-        run: yarn
-      - name: Lint website
-        working-directory: docs/
-        run: yarn lint
-      - uses: actions/github-script@v6
-        name: Comment on failure
-        if: ${{ failure() }}
-        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            var fs = require('fs');
+            var issue_number = Number(fs.readFileSync('pr/pr-number'));
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: issue_number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "Thanks for submitting this PR!\n\nUnfortunately, it has some linter errors, so we can't merge it yet. Can you please fix them?\n\nRunning yarn `lint:fix` in the root of the repository may fix them automatically."
