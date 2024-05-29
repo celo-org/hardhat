@@ -1,4 +1,4 @@
-name: Check lint failure
+name: Check Lint Failure
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  comment_on_lint_failure:
+  check_lint_failure:
     name: Comment on lint failure
     runs-on: ubuntu-latest
     steps:
@@ -42,10 +42,9 @@ jobs:
         if: ${{ failure() }}
         run: |
           mkdir -p ./pr
-          echo ${{ github.event.number }} > ./pr/NR
+          echo ${{ github.event.number }} > ./pr/pr-number
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: pr
-          path: pr/
-          retention-days: 1
+          name: pr-number
+          path: pr/pr-number
